@@ -2,6 +2,7 @@
 const notesContainer = document.querySelector('#notes-container')
 const noteInput = document.querySelector('#note-content')
 const addNoteBtn = document.querySelector('.add-note')
+const searchInput = document.querySelector('#search-input')
 //Funções
 function showNotes() {
     clearNotes()
@@ -53,8 +54,9 @@ function createNote(id, content, fixed) {
         element.classList.add('fixed')
     }
     //Eventos do elmentos
-    element.querySelector('textarea').addEventListener('keyup', () =>{
-        
+    element.querySelector('textarea').addEventListener('keyup', (e) =>{
+        const noteContent = e.target.value
+        updateNote(id, noteContent)
     })
 
     element.querySelector(".bi-pin").addEventListener('click', () => {
@@ -93,6 +95,12 @@ function copyNote(id) {
     notes.push(noteObject)
     saveNotes(notes)
 }
+function updateNote(id, newContent){
+    const notes = getNotes()
+    const targetNote = notes.filter((note) => note.id === id)[0]
+    targetNote.content = newContent
+    saveNotes(notes)
+}
 //Local Storage
 function getNotes() {
     const notes = JSON.parse(localStorage.getItem('notes') || '[]')
@@ -102,11 +110,34 @@ function getNotes() {
 function saveNotes(notes) {
     localStorage.setItem('notes', JSON.stringify(notes))
 }
-
+function searchNotes(search) {
+    const searchResults = getNotes().filter((note) => 
+       note.content.includes(search)
+    )
+    if(search !== ""){
+        clearNotes()
+        searchResults.forEach((note) => {
+            const noteElement = createNote(note.id, note.content)
+            notesContainer.appendChild(noteElement)
+        })
+        return
+    }
+    clearNotes()
+    showNotes()
+}
 
 //Eventos
 addNoteBtn.addEventListener('click', () => addNote())
-
+noteInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter'){
+        addNote()
+    }
+})
+//Busca
+searchInput.addEventListener('keyup', (e) => {
+    const search = e.target.value
+    searchNotes(search)
+})
 //Inicialização
 showNotes()
 // clearTimeout()
