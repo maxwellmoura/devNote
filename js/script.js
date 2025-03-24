@@ -3,6 +3,7 @@ const notesContainer = document.querySelector('#notes-container')
 const noteInput = document.querySelector('#note-content')
 const addNoteBtn = document.querySelector('.add-note')
 const searchInput = document.querySelector('#search-input')
+const exportBtn = document.querySelector('#exports-notes')
 //Funções
 function showNotes() {
     clearNotes()
@@ -125,6 +126,21 @@ function searchNotes(search) {
     clearNotes()
     showNotes()
 }
+function exportData() {
+    const notes = getNotes()
+    //Padrão CSV, ele vai separa o dados por virgula, querabdo as linhas \n
+    const csvString = [
+        ["ID", "Conteudo", "Fixado?"],
+        ...notes.map((note) => [note.id, note.content, note.fixed])
+    ].map((e) => e.join(',')).join('\n')
+    console.log(csvString)
+    //Download csv
+    const element = document.createElement('a')
+    element.href = 'data:text/csv;charset=utf-8,' + encodeURI(csvString)
+    element.target = '_blank'
+    element.download = 'notes.csv'
+    element.click()
+}
 
 //Eventos
 addNoteBtn.addEventListener('click', () => addNote())
@@ -133,6 +149,10 @@ noteInput.addEventListener('keydown', (e) => {
         addNote()
     }
 })
+//Evento de exportação
+    exportBtn.addEventListener('click', () =>{
+        exportData()
+    })
 //Busca
 searchInput.addEventListener('keyup', (e) => {
     const search = e.target.value
